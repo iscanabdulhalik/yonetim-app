@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSite } from "@/contexts/SiteContext";
+import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { StatsCards } from "@/components/dashboard/StatsCard";
 import { PaymentChart } from "@/components/dashboard/PaymentChart";
@@ -19,6 +20,9 @@ import {
 export default function DashboardPage() {
   const { user } = useAuth();
   const { site } = useSite();
+  const params = useParams();
+  const siteCode = params.siteCode as string;
+
   const [stats, setStats] = useState({
     totalResidents: 0,
     monthlyIncome: 0,
@@ -29,13 +33,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (user?.siteId) {
+      fetchDashboardData();
+    }
+  }, [user?.siteId]);
 
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/dashboard/${site?._id}`, {
+      // FIXED: siteId'yi user'dan al, site'dan değil
+      const response = await fetch(`/api/dashboard/${user?.siteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -87,7 +94,7 @@ export default function DashboardPage() {
               {getGreeting()}, {user?.firstName}!
             </h1>
             <p className="text-primary-100 mt-1">
-              {site?.name} - {getCurrentMonth()} ayı özeti
+              {site?.name || siteCode} - {getCurrentMonth()} ayı özeti
             </p>
           </div>
           <div className="text-right">

@@ -1,4 +1,4 @@
-import "./globals.css";
+import "@/app/";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SiteProvider } from "@/contexts/SiteContext";
