@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
-import { User } from "@/models/User";
-import { Site } from "@/models/Site";
+import { User, IUser } from "@/models/User";
+import { Site, ISite } from "@/models/Site";
 import { verifyPassword, generateToken } from "@/lib/auth";
+
+interface UserWithSite extends Omit<IUser, "siteId"> {
+  siteId: ISite;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find site if siteCode is provided
-    let site = null;
+    let site: ISite | null = null;
     if (siteCode) {
       site = await Site.findOne({
         siteCode: siteCode.toUpperCase(),
@@ -38,7 +42,9 @@ export async function POST(request: NextRequest) {
       query.siteId = site._id;
     }
 
-    const user = await User.findOne(query).populate("siteId");
+    const user = (await User.findOne(query).populate(
+      "siteId"
+    )) as UserWithSite | null;
 
     if (!user) {
       return NextResponse.json(

@@ -1,5 +1,5 @@
 import createIntlMiddleware from "next-intl/middleware";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const intlMiddleware = createIntlMiddleware({
   locales: ["tr", "en"],
@@ -8,6 +8,21 @@ const intlMiddleware = createIntlMiddleware({
 });
 
 export default function middleware(request: NextRequest) {
+  // API rotalarını exclude et
+  if (request.nextUrl.pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
+  // Static dosyaları exclude et
+  if (
+    request.nextUrl.pathname.startsWith("/_next") ||
+    request.nextUrl.pathname.startsWith("/favicon.ico") ||
+    request.nextUrl.pathname.startsWith("/images") ||
+    request.nextUrl.pathname.startsWith("/icons")
+  ) {
+    return NextResponse.next();
+  }
+
   return intlMiddleware(request);
 }
 

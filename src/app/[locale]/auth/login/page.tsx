@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
@@ -22,7 +22,8 @@ export default function LoginPage() {
   });
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,7 +118,7 @@ export default function LoginPage() {
             <p className="text-sm text-secondary-600">
               Hesabınız yok mu?{" "}
               <Link
-                href="/auth/register"
+                href={`/${locale}/auth/register`}
                 className="text-primary-600 hover:text-primary-700 font-medium"
               >
                 Kayıt olun
@@ -194,7 +195,7 @@ export default function LoginPage() {
                   ← Geri
                 </Button>
                 <Link
-                  href="/auth/forgot-password"
+                  href={`/${locale}/auth/forgot-password`}
                   className="text-sm text-primary-600 hover:text-primary-700"
                 >
                   Şifremi unuttum
@@ -210,7 +211,7 @@ export default function LoginPage() {
               <p className="text-sm text-secondary-600">
                 Hesabınız yok mu?{" "}
                 <Link
-                  href="/auth/register"
+                  href={`/${locale}/auth/register`}
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
                   Kayıt olun

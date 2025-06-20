@@ -4,6 +4,10 @@ import { User, IUser } from "@/models/User";
 import { ISite } from "@/models/Site";
 import { verifyToken } from "@/lib/auth";
 
+interface UserWithSite extends Omit<IUser, "siteId"> {
+  siteId: ISite;
+}
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -25,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     const user = (await User.findById(decoded.userId)
       .populate("siteId")
-      .select("-password")) as IUser & { siteId: ISite };
+      .select("-password")) as UserWithSite | null;
 
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });

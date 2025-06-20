@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
@@ -24,6 +25,8 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const params = useParams();
+  const locale = params.locale as string;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,7 +190,7 @@ export default function RegisterPage() {
               <p className="text-sm text-secondary-600">
                 Zaten hesabınız var mı?{" "}
                 <Link
-                  href="/auth/login"
+                  href={`/${locale}/auth/login`}
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
                   Giriş yapın

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import {
@@ -27,6 +27,8 @@ interface SidebarProps {
 export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const params = useParams();
+  const locale = params.locale as string;
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const toggleMenu = (menuId: string) => {
@@ -39,9 +41,9 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
   const getBasePath = () => {
     if (user?.role === "super_admin") {
-      return "/admin";
+      return `/${locale}/admin`;
     }
-    return `/site/${user?.siteId}`;
+    return `/${locale}/site/${user?.siteCode}`;
   };
 
   const menuItems = [
