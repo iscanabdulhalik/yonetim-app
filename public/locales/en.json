@@ -1,0 +1,166 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "profile": "Profile",
+    "name": "Name",
+    "surname": "Surname",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "date": "Date",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "auth": {
+    "loginTitle": "Sign In",
+    "loginSubtitle": "Access your account",
+    "registerTitle": "Sign Up",
+    "registerSubtitle": "Create new account",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "roleSelection": "Select Login Type",
+    "manager": "Manager",
+    "resident": "Resident",
+    "siteCode": "Site Code",
+    "building": "Building",
+    "unitNumber": "Unit Number"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "totalResidents": "Total Residents",
+    "monthlyIncome": "Monthly Income",
+    "totalExpenses": "Total Expenses",
+    "overduePayments": "Overdue Payments",
+    "recentAnnouncements": "Recent Announcements",
+    "recentComplaints": "Recent Complaints",
+    "paymentChart": "Payment Chart",
+    "expenseChart": "Expense Chart"
+  },
+  "payments": {
+    "title": "Payment Management",
+    "monthlyFee": "Monthly Fee",
+    "dueDate": "Due Date",
+    "paidDate": "Paid Date",
+    "paymentStatus": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "overdue": "Overdue"
+    },
+    "paymentHistory": "Payment History",
+    "createPayment": "Create Payment",
+    "markAsPaid": "Mark as Paid",
+    "sendReminder": "Send Reminder"
+  },
+  "announcements": {
+    "title": "Announcements",
+    "create": "Create Announcement",
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "content": "Content",
+    "publishDate": "Publish Date",
+    "readBy": "Read by"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "create": "Add Expense",
+    "category": "Category",
+    "description": "Description",
+    "receipt": "Receipt",
+    "totalExpenses": "Total Expenses",
+    "monthlyExpenses": "Monthly Expenses",
+    "categories": {
+      "cleaning": "Cleaning",
+      "maintenance": "Maintenance",
+      "security": "Security",
+      "utilities": "Utilities",
+      "landscaping": "Landscaping",
+      "insurance": "Insurance",
+      "other": "Other"
+    }
+  },
+  "complaints": {
+    "title": "Complaints & Requests",
+    "create": "Create Complaint",
+    "category": "Category",
+    "priority": "Priority",
+    "status": {
+      "open": "Open",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "categories": {
+      "maintenance": "Maintenance",
+      "noise": "Noise",
+      "security": "Security",
+      "cleaning": "Cleaning",
+      "other": "Other"
+    },
+    "adminResponse": "Admin Response",
+    "respondedBy": "Responded By",
+    "respondedAt": "Response Date"
+  },
+  "voting": {
+    "title": "Voting",
+    "create": "Create Vote",
+    "options": "Options",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "totalVotes": "Total Votes",
+    "results": "Results",
+    "vote": "Vote",
+    "alreadyVoted": "Already voted"
+  },
+  "users": {
+    "title": "Users",
+    "residents": "Residents",
+    "managers": "Managers",
+    "role": "Role",
+    "lastLogin": "Last Login",
+    "isActive": "Active",
+    "roles": {
+      "super_admin": "Super Admin",
+      "site_admin": "Site Admin",
+      "resident": "Resident"
+    }
+  },
+  "site": {
+    "title": "Site Information",
+    "siteCode": "Site Code",
+    "buildingCount": "Building Count",
+    "totalUnits": "Total Units",
+    "currency": "Currency",
+    "logo": "Logo",
+    "qrCode": "QR Code"
+  }
+}

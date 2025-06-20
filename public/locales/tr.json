@@ -1,0 +1,166 @@
+{
+  "common": {
+    "login": "Giriş Yap",
+    "logout": "Çıkış Yap",
+    "register": "Kayıt Ol",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "view": "Görüntüle",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarı",
+    "warning": "Uyarı",
+    "info": "Bilgi",
+    "yes": "Evet",
+    "no": "Hayır",
+    "back": "Geri",
+    "next": "İleri",
+    "dashboard": "Panel",
+    "settings": "Ayarlar",
+    "profile": "Profil",
+    "name": "Ad",
+    "surname": "Soyad",
+    "email": "E-posta",
+    "phone": "Telefon",
+    "address": "Adres",
+    "date": "Tarih",
+    "amount": "Tutar",
+    "status": "Durum",
+    "actions": "İşlemler"
+  },
+  "auth": {
+    "loginTitle": "Giriş Yapın",
+    "loginSubtitle": "Hesabınıza erişim sağlayın",
+    "registerTitle": "Kayıt Olun",
+    "registerSubtitle": "Yeni hesap oluşturun",
+    "password": "Şifre",
+    "confirmPassword": "Şifre Tekrar",
+    "rememberMe": "Beni Hatırla",
+    "forgotPassword": "Şifremi Unuttum",
+    "dontHaveAccount": "Hesabınız yok mu?",
+    "alreadyHaveAccount": "Zaten hesabınız var mı?",
+    "roleSelection": "Giriş Türü Seçin",
+    "manager": "Yönetici",
+    "resident": "Sakin",
+    "siteCode": "Site Kodu",
+    "building": "Blok",
+    "unitNumber": "Daire No"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Hoş Geldiniz",
+    "totalResidents": "Toplam Sakin",
+    "monthlyIncome": "Aylık Gelir",
+    "totalExpenses": "Toplam Gider",
+    "overduePayments": "Geciken Ödemeler",
+    "recentAnnouncements": "Son Duyurular",
+    "recentComplaints": "Son Şikayetler",
+    "paymentChart": "Ödeme Grafiği",
+    "expenseChart": "Gider Grafiği"
+  },
+  "payments": {
+    "title": "Aidat Takibi",
+    "monthlyFee": "Aylık Aidat",
+    "dueDate": "Son Ödeme Tarihi",
+    "paidDate": "Ödeme Tarihi",
+    "paymentStatus": {
+      "pending": "Bekliyor",
+      "paid": "Ödendi",
+      "overdue": "Gecikmiş"
+    },
+    "paymentHistory": "Ödeme Geçmişi",
+    "createPayment": "Aidat Oluştur",
+    "markAsPaid": "Ödendi İşaretle",
+    "sendReminder": "Hatırlatma Gönder"
+  },
+  "announcements": {
+    "title": "Duyurular",
+    "create": "Duyuru Oluştur",
+    "priority": {
+      "low": "Düşük",
+      "normal": "Normal",
+      "high": "Yüksek",
+      "urgent": "Acil"
+    },
+    "content": "İçerik",
+    "publishDate": "Yayın Tarihi",
+    "readBy": "Okuyan Kişi Sayısı"
+  },
+  "expenses": {
+    "title": "Giderler",
+    "create": "Gider Ekle",
+    "category": "Kategori",
+    "description": "Açıklama",
+    "receipt": "Fiş/Fatura",
+    "totalExpenses": "Toplam Gider",
+    "monthlyExpenses": "Aylık Gider",
+    "categories": {
+      "cleaning": "Temizlik",
+      "maintenance": "Bakım-Onarım",
+      "security": "Güvenlik",
+      "utilities": "Elektrik-Su-Doğalgaz",
+      "landscaping": "Peyzaj",
+      "insurance": "Sigorta",
+      "other": "Diğer"
+    }
+  },
+  "complaints": {
+    "title": "Şikayet ve Dilekler",
+    "create": "Şikayet Oluştur",
+    "category": "Kategori",
+    "priority": "Öncelik",
+    "status": {
+      "open": "Açık",
+      "in_progress": "İşlemde",
+      "resolved": "Çözüldü",
+      "closed": "Kapalı"
+    },
+    "categories": {
+      "maintenance": "Bakım-Onarım",
+      "noise": "Gürültü",
+      "security": "Güvenlik",
+      "cleaning": "Temizlik",
+      "other": "Diğer"
+    },
+    "adminResponse": "Yönetici Yanıtı",
+    "respondedBy": "Yanıtlayan",
+    "respondedAt": "Yanıt Tarihi"
+  },
+  "voting": {
+    "title": "Oylamalar",
+    "create": "Oylama Oluştur",
+    "options": "Seçenekler",
+    "startDate": "Başlangıç Tarihi",
+    "endDate": "Bitiş Tarihi",
+    "totalVotes": "Toplam Oy",
+    "results": "Sonuçlar",
+    "vote": "Oy Ver",
+    "alreadyVoted": "Zaten oy verdiniz"
+  },
+  "users": {
+    "title": "Kullanıcılar",
+    "residents": "Sakinler",
+    "managers": "Yöneticiler",
+    "role": "Rol",
+    "lastLogin": "Son Giriş",
+    "isActive": "Aktif",
+    "roles": {
+      "super_admin": "Süper Admin",
+      "site_admin": "Site Yöneticisi",
+      "resident": "Sakin"
+    }
+  },
+  "site": {
+    "title": "Site Bilgileri",
+    "siteCode": "Site Kodu",
+    "buildingCount": "Blok Sayısı",
+    "totalUnits": "Toplam Daire",
+    "currency": "Para Birimi",
+    "logo": "Logo",
+    "qrCode": "QR Kod"
+  }
+}

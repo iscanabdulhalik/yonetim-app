@@ -1,0 +1,89 @@
+
+
+// src/app/api/auth/register/route.ts - Düzeltilmiş versiyon
+
+
+// src/lib/auth.ts - generateToken fonksiyonu güncellemesi
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { IUser } from '@/models/User';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+export async function hashPassword(password: string): Promise<string> {
+  return await bcrypt.hash(password, 12);
+}
+
+export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return await bcrypt.compare(password, hashedPassword);
+}
+
+export function generateToken(user: IUser): string {
+  return jwt.sign(
+    {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+      siteId: user.siteId,
+    },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
+
+export function verifyToken(token: string): any {
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
+}
+
+export function generateSiteCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// src/middleware.ts - Düzeltilmiş middleware
+import createIntlMiddleware from 'next-intl/middleware';
+import { NextRequest, NextResponse } from 'next/server';
+
+const intlMiddleware = createIntlMiddleware({
+  locales: ['tr', 'en'],
+  defaultLocale: 'tr',
+  localePrefix: 'always'
+});
+
+export default function middleware(request: NextRequest) {
+  // API rotalarını exclude et
+  if (request.nextUrl.pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+
+  // Static dosyaları exclude et
+  if (request.nextUrl.pathname.startsWith('/_next') || 
+      request.nextUrl.pathname.startsWith('/favicon.ico')) {
+    return NextResponse.next();
+  }
+
+  return intlMiddleware(request);
+}
+
+export const config = {
+  matcher: [
+    // Enable a redirect to a matching locale at the root
+    '/',
+    
+    // Set a cookie to remember the previous locale for
+    // all requests that have a locale prefix
+    '/(tr|en)/:path*',
+    
+    // Enable redirects that add missing locales
+    // (e.g. `/pathnames` -> `/en/pathnames`)
+    '/((?!api|_next|_vercel|.*\\..*).*)'
+  ]
+};
