@@ -44,6 +44,7 @@ export default function RegisterPage() {
         return;
       }
 
+      // AuthContext'teki register fonksiyonunu kullan
       await register({
         firstName: formData.firstName,
         lastName: formData.lastName,

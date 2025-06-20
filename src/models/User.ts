@@ -2,7 +2,7 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IUser extends Document {
   _id: string;
-  siteId: mongoose.Types.ObjectId;
+  siteId?: mongoose.Types.ObjectId;
   email: string;
   password: string;
   firstName: string;
@@ -19,7 +19,14 @@ export interface IUser extends Document {
 
 const UserSchema = new Schema<IUser>(
   {
-    siteId: { type: Schema.Types.ObjectId, ref: "Site", required: true },
+    siteId: {
+      type: Schema.Types.ObjectId,
+      ref: "Site",
+      required: function (this: IUser) {
+        // Super admin için siteId gerekmez
+        return this.role !== "super_admin";
+      },
+    },
     email: { type: String, required: true, lowercase: true },
     password: { type: String, required: true },
     firstName: { type: String, required: true },
@@ -40,7 +47,22 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-UserSchema.index({ email: 1, siteId: 1 }, { unique: true });
+UserSchema.index(
+  { email: 1, siteId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { role: { $ne: "super_admin" } },
+  }
+);
+
+// Super admin için sadece email unique
+UserSchema.index(
+  { email: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { role: "super_admin" },
+  }
+);
 
 export const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

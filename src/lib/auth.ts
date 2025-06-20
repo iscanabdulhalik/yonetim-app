@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { IUser } from "../models/User";
+import mongoose from "mongoose";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -15,13 +16,17 @@ export async function verifyPassword(
   return await bcrypt.compare(password, hashedPassword);
 }
 
-export function generateToken(user: IUser): string {
+// Flexible generateToken function
+export function generateToken(user: IUser | any): string {
+  // Handle both populated and non-populated siteId
+  const siteId = user.siteId?._id || user.siteId;
+
   return jwt.sign(
     {
       userId: user._id,
       email: user.email,
       role: user.role,
-      siteId: user.siteId,
+      siteId: siteId,
     },
     JWT_SECRET,
     { expiresIn: "7d" }

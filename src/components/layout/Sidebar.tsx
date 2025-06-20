@@ -54,6 +54,22 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       href: `${getBasePath()}/dashboard`,
       roles: ["super_admin", "site_admin", "resident"],
     },
+    // Super Admin özel menüler
+    {
+      id: "sites",
+      label: "Siteler",
+      icon: Building2,
+      href: `${getBasePath()}/sites`,
+      roles: ["super_admin"],
+    },
+    {
+      id: "all_users",
+      label: "Tüm Kullanıcılar",
+      icon: Users,
+      href: `${getBasePath()}/users`,
+      roles: ["super_admin"],
+    },
+    // Site Admin ve Resident menüler
     {
       id: "payments",
       label: "Aidat Takibi",
@@ -90,18 +106,11 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       roles: ["site_admin", "resident"],
     },
     {
-      id: "users",
-      label: "Kullanıcılar",
+      id: "site_users",
+      label: "Site Kullanıcıları",
       icon: Users,
       href: `${getBasePath()}/users`,
       roles: ["site_admin"],
-    },
-    {
-      id: "sites",
-      label: "Siteler",
-      icon: Building2,
-      href: `${getBasePath()}/sites`,
-      roles: ["super_admin"],
     },
     {
       id: "settings",
@@ -177,7 +186,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           {/* Footer */}
           <div className="p-4 border-t border-secondary-200">
             <div className="text-xs text-secondary-500 text-center">
-              © 2024 Apartman Yönetim
+              © 2025 Yönetim App
             </div>
           </div>
         </div>

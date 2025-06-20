@@ -1,10 +1,8 @@
-const withNextIntl = require("next-intl/plugin")("./src/i18n.ts");
+const createNextIntlPlugin = require("next-intl/plugin");
+const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: true,
-  },
   images: {
     domains: ["localhost", "vercel.app"],
     remotePatterns: [
@@ -14,7 +12,6 @@ const nextConfig = {
       },
     ],
   },
-  // PWA Configuration
   async headers() {
     return [
       {
@@ -36,7 +33,6 @@ const nextConfig = {
       },
     ];
   },
-  // Socket.io configuration
   async rewrites() {
     return [
       {

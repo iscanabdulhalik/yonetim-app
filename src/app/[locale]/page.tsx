@@ -26,14 +26,6 @@ export default function HomePage({ params }: { params: { locale: string } }) {
     }
   }, [user, loading, router, locale]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loading size="lg" text="Yükleniyor..." />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Loading size="lg" text="Yönlendiriliyor..." />

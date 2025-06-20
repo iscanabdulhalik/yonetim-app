@@ -19,7 +19,9 @@ interface AuthContextType {
   updateUser: (userData: Partial<AuthUser>) => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -78,6 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const data = await response.json();
+
+    // TOKEN'I SAKLA - ÖNEMLİ!
     localStorage.setItem("token", data.token);
     setUser(data.user);
 
@@ -91,26 +95,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (userData: RegisterRequest) => {
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Registration failed");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Registration failed");
+      }
+
+      const data = await response.json();
+
+      // Token'ı localStorage'a kaydet
+      localStorage.setItem("token", data.token);
+      setUser(data.user);
+
+      // Kayıt sonrası site sayfasına yönlendir
+      const siteCode = data.user.siteCode;
+      router.push(`/tr/site/${siteCode}/dashboard`);
+
+      return data; // Success döndür
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error; // Hatayı yukarı fırlat
     }
-
-    const data = await response.json();
-    localStorage.setItem("token", data.token);
-    setUser(data.user);
-
-    // Kayıt sonrası site sayfasına yönlendir
-    const siteCode = data.user.siteCode;
-    router.push(`/tr/site/${siteCode}/dashboard`);
   };
 
   const logout = () => {
