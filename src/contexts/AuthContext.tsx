@@ -104,12 +104,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify(userData),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Registration failed");
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
 
       // Token'ı localStorage'a kaydet
       localStorage.setItem("token", data.token);
@@ -119,10 +118,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const siteCode = data.user.siteCode;
       router.push(`/tr/site/${siteCode}/dashboard`);
 
-      return data; // Success döndür
+      return data;
     } catch (error) {
       console.error("Registration error:", error);
-      throw error; // Hatayı yukarı fırlat
+      throw error;
     }
   };
 

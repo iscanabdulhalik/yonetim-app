@@ -1,94 +1,124 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { connectDB } from "@/lib/mongodb";
+import connectDB from "@/lib/db";
 import { User } from "@/models/User";
+import { Site } from "@/models/Site";
+import { hashPassword, generateToken } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
 
-    const body = await request.json();
     const {
+      firstName,
+      lastName,
       email,
       password,
-      firstName,
-      lastName,
       phone,
-      role = "resident",
-      siteId,
       building,
       unitNumber,
-      isActive = true,
-    } = body;
+      siteCode,
+    } = await request.json();
 
     // Validation
-    if (!email || !password || !firstName || !lastName) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !password ||
+      !siteCode ||
+      !unitNumber
+    ) {
       return NextResponse.json(
-        { error: "Email, şifre, ad ve soyad zorunludur" },
+        {
+          message:
+            "Ad, soyad, email, şifre, site kodu ve daire numarası zorunludur",
+        },
         { status: 400 }
       );
     }
 
-    // Super admin dışındaki roller için siteId zorunlu
-    if (role !== "super_admin" && !siteId) {
+    // Find site by siteCode
+    const site = await Site.findOne({
+      siteCode: siteCode.toUpperCase(),
+      isActive: true,
+    });
+
+    if (!site) {
       return NextResponse.json(
-        { error: "Bu rol için siteId zorunludur" },
+        { message: "Geçersiz site kodu" },
         { status: 400 }
       );
     }
 
-    // Email kontrolü
-    const existingUser = await User.findOne({ email });
+    // Check if user already exists in this site
+    const existingUser = await User.findOne({
+      email: email.toLowerCase(),
+      siteId: site._id,
+    });
+
     if (existingUser) {
       return NextResponse.json(
-        { error: "Bu email adresi zaten kullanımda" },
+        { message: "Bu email adresi zaten kullanımda" },
         { status: 400 }
       );
     }
 
-    // Şifre hash'le
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if unit is already taken
+    if (building && unitNumber) {
+      const existingUnit = await User.findOne({
+        siteId: site._id,
+        building,
+        unitNumber,
+        isActive: true,
+      });
 
-    // Yeni kullanıcı oluştur
-    const userData: any = {
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      phone,
-      role,
-      building,
-      unitNumber,
-      isActive,
-    };
-
-    // Super admin değilse siteId ekle
-    if (role !== "super_admin") {
-      userData.siteId = siteId;
+      if (existingUnit) {
+        return NextResponse.json(
+          { message: "Bu daire numarası zaten kayıtlı" },
+          { status: 400 }
+        );
+      }
     }
 
-    const newUser = new User(userData);
-    await newUser.save();
+    // Hash password
+    const hashedPassword = await hashPassword(password);
 
-    // Şifreyi response'dan çıkar
+    // Create user
+    const user = new User({
+      siteId: site._id,
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      phone,
+      role: "resident",
+      building,
+      unitNumber,
+    });
+
+    await user.save();
+
+    // Generate token
+    const token = generateToken(user as any);
+
+    // Prepare user response (without password)
     const userResponse = {
-      _id: newUser._id,
-      siteId: newUser.siteId,
-      email: newUser.email,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      phone: newUser.phone,
-      role: newUser.role,
-      building: newUser.building,
-      unitNumber: newUser.unitNumber,
-      isActive: newUser.isActive,
-      createdAt: newUser.createdAt,
-      updatedAt: newUser.updatedAt,
+      _id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      siteId: site._id,
+      siteCode: site.siteCode,
+      building: user.building,
+      unitNumber: user.unitNumber,
+      phone: user.phone,
     };
 
     return NextResponse.json({
       success: true,
-      message: "Kullanıcı başarıyla oluşturuldu",
+      message: "Kayıt başarılı",
+      token,
       user: userResponse,
     });
   } catch (error: any) {
@@ -96,13 +126,13 @@ export async function POST(request: NextRequest) {
 
     if (error.code === 11000) {
       return NextResponse.json(
-        { error: "Bu email adresi zaten kullanımda" },
+        { message: "Bu email adresi zaten kullanımda" },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: "Kullanıcı oluşturulurken hata oluştu" },
+      { message: "Kayıt sırasında hata oluştu" },
       { status: 500 }
     );
   }
