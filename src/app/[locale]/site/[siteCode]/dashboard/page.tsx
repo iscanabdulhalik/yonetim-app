@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSite } from "@/contexts/SiteContext";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { StatsCards } from "@/components/dashboard/StatsCard";
 import { PaymentChart } from "@/components/dashboard/PaymentChart";
@@ -16,12 +16,12 @@ import {
   TrendingUp,
   Calendar,
 } from "lucide-react";
-import router from "next/router";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { site } = useSite();
   const params = useParams();
+  const router = useRouter();
   const siteCode = params.siteCode as string;
 
   const [stats, setStats] = useState({
@@ -42,7 +42,6 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
-      // FIXED: siteId'yi user'dan al, site'dan değil
       const response = await fetch(`/api/dashboard/${user?.siteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,

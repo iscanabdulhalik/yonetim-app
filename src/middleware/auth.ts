@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
+import mongoose from "mongoose";
 
 export function withAuth(handler: Function, requiredRoles?: string[]) {
   return async (request: NextRequest, context?: any) => {
@@ -25,6 +26,15 @@ export function withAuth(handler: Function, requiredRoles?: string[]) {
           { message: "Insufficient permissions" },
           { status: 403 }
         );
+      }
+
+      // Convert siteId to ObjectId if needed
+      if (decoded.siteId && typeof decoded.siteId === "string") {
+        try {
+          decoded.siteId = new mongoose.Types.ObjectId(decoded.siteId);
+        } catch (error) {
+          // If conversion fails, keep as string (for compatibility)
+        }
       }
 
       // Add user info to request

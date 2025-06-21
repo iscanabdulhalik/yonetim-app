@@ -47,11 +47,15 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
+// Compound indexes for better performance
 UserSchema.index(
   { email: 1, siteId: 1 },
   {
     unique: true,
-    partialFilterExpression: { role: { $ne: "super_admin" } },
+    partialFilterExpression: {
+      role: { $ne: "super_admin" },
+      isActive: true,
+    },
   }
 );
 
@@ -63,6 +67,23 @@ UserSchema.index(
     partialFilterExpression: { role: "super_admin" },
   }
 );
+
+// Unit uniqueness within site
+UserSchema.index(
+  { siteId: 1, building: 1, unitNumber: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      building: { $exists: true, $ne: null },
+      unitNumber: { $exists: true, $ne: null },
+      isActive: true,
+    },
+  }
+);
+
+// Performance indexes
+UserSchema.index({ siteId: 1, role: 1, isActive: 1 });
+UserSchema.index({ role: 1, isActive: 1 });
 
 export const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

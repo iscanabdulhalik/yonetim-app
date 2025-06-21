@@ -27,12 +27,44 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
     }
 
+    // Super admin için farklı logic
+    if (decoded.role === "super_admin") {
+      const user = await User.findById(decoded.userId).select("-password");
+
+      if (!user) {
+        return NextResponse.json(
+          { message: "User not found" },
+          { status: 404 }
+        );
+      }
+
+      const userData = {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        siteId: null,
+        siteCode: "ADMIN",
+        building: user.building,
+        unitNumber: user.unitNumber,
+        phone: user.phone,
+      };
+
+      return NextResponse.json({ user: userData });
+    }
+
+    // Normal kullanıcılar için site bilgisi ile birlikte
     const user = (await User.findById(decoded.userId)
       .populate("siteId")
       .select("-password")) as UserWithSite | null;
 
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
+
+    if (!user.siteId) {
+      return NextResponse.json({ message: "Site not found" }, { status: 404 });
     }
 
     const userData = {

@@ -64,11 +64,21 @@ export function Header({
     }
   };
 
-  const changeLanguage = (locale: string) => {
-    const newPath = pathname.replace(/^\/[a-z]{2}/, `/${locale}`);
-    router.push(newPath);
-    setShowLanguageMenu(false);
+  const getCurrentLocale = () => {
+    const pathSegments = pathname.split("/");
+    return pathSegments[1] || "tr";
   };
+
+  const changeLanguage = (locale: string) => {
+    const currentLocale = getCurrentLocale();
+    const newPath = pathname.replace(`/${currentLocale}`, `/${locale}`);
+    setShowLanguageMenu(false);
+
+    // Redirect to new locale
+    window.location.href = newPath;
+  };
+
+  const currentLocale = getCurrentLocale();
 
   return (
     <header className="bg-white border-b border-secondary-200 shadow-soft">
@@ -113,20 +123,29 @@ export function Header({
                 size="sm"
                 onClick={() => setShowLanguageMenu(!showLanguageMenu)}
               >
-                <Globe className="h-4 w-4" />
+                <Globe className="h-4 w-4 mr-1" />
+                <span className="text-xs uppercase">{currentLocale}</span>
               </Button>
 
               {showLanguageMenu && (
-                <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-medium border border-secondary-200 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-medium border border-secondary-200 py-1 z-50">
                   <button
                     onClick={() => changeLanguage("tr")}
-                    className="block w-full text-left px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-50"
+                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-secondary-50 ${
+                      currentLocale === "tr"
+                        ? "text-primary-600 bg-primary-50 font-medium"
+                        : "text-secondary-700"
+                    }`}
                   >
                     🇹🇷 Türkçe
                   </button>
                   <button
                     onClick={() => changeLanguage("en")}
-                    className="block w-full text-left px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-50"
+                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-secondary-50 ${
+                      currentLocale === "en"
+                        ? "text-primary-600 bg-primary-50 font-medium"
+                        : "text-secondary-700"
+                    }`}
                   >
                     🇺🇸 English
                   </button>
@@ -176,14 +195,16 @@ export function Header({
                   <Link
                     href="/profile"
                     className="flex items-center px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-50"
+                    onClick={() => setShowUserMenu(false)}
                   >
                     <User className="h-4 w-4 mr-3" />
                     Profil
                   </Link>
 
                   <Link
-                    href="/settings"
+                    href={`/${currentLocale}/admin/settings`}
                     className="flex items-center px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-50"
+                    onClick={() => setShowUserMenu(false)}
                   >
                     <Settings className="h-4 w-4 mr-3" />
                     Ayarlar
@@ -192,7 +213,10 @@ export function Header({
                   <hr className="my-1" />
 
                   <button
-                    onClick={handleLogout}
+                    onClick={() => {
+                      handleLogout();
+                      setShowUserMenu(false);
+                    }}
                     className="flex items-center w-full px-4 py-2 text-sm text-danger-600 hover:bg-danger-50"
                   >
                     <LogOut className="h-4 w-4 mr-3" />
