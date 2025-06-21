@@ -21,6 +21,8 @@ import {
   CheckCircle,
   XCircle,
   MessageCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -31,7 +33,9 @@ interface Complaint {
   category: "maintenance" | "noise" | "security" | "cleaning" | "other";
   status: "open" | "in_progress" | "resolved" | "closed";
   priority: "low" | "normal" | "high";
+  visibility: "admin_only" | "all_residents"; // Yeni alan
   userId: {
+    _id: string; // Added _id property
     firstName: string;
     lastName: string;
     building?: string;
@@ -71,6 +75,7 @@ export default function ComplaintsPage() {
     description: "",
     category: "other" as const,
     priority: "normal" as const,
+    visibility: "admin_only" as const, // Yeni alan
   });
 
   // Response form
@@ -104,7 +109,18 @@ export default function ComplaintsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setComplaints(data.complaints || []);
+        let complaintsData = data.complaints || [];
+
+        // Eğer kullanıcı sakin ise, sadece kendi şikayetlerini ve herkese açık olanları göster
+        if (user?.role === "resident") {
+          complaintsData = complaintsData.filter(
+            (complaint: Complaint) =>
+              complaint.userId._id === user._id ||
+              complaint.visibility === "all_residents"
+          );
+        }
+
+        setComplaints(complaintsData);
         setStats(data.stats || []);
       } else {
         toast.error("Şikayetler yüklenemedi");
@@ -140,6 +156,7 @@ export default function ComplaintsPage() {
           description: "",
           category: "other",
           priority: "normal",
+          visibility: "admin_only",
         });
       } else {
         const error = await response.json();
@@ -246,6 +263,18 @@ export default function ComplaintsPage() {
       default:
         return "success" as const;
     }
+  };
+
+  const getVisibilityIcon = (visibility: string) => {
+    return visibility === "all_residents" ? (
+      <Eye className="h-4 w-4 text-success-600" />
+    ) : (
+      <EyeOff className="h-4 w-4 text-warning-600" />
+    );
+  };
+
+  const getVisibilityLabel = (visibility: string) => {
+    return visibility === "all_residents" ? "Herkese Açık" : "Sadece Yönetici";
   };
 
   const filteredComplaints = complaints.filter(
@@ -383,6 +412,12 @@ export default function ComplaintsPage() {
                         ? "Normal"
                         : "Düşük"}
                     </Badge>
+                    <div className="flex items-center space-x-1">
+                      {getVisibilityIcon(complaint.visibility)}
+                      <span className="text-xs text-gray-500">
+                        {getVisibilityLabel(complaint.visibility)}
+                      </span>
+                    </div>
                   </div>
                   <div className="text-sm text-gray-500">
                     {formatDateTime(complaint.createdAt)}
@@ -505,6 +540,21 @@ export default function ComplaintsPage() {
                 ]}
               />
             </div>
+
+            <Select
+              label="Görünürlük"
+              value={createForm.visibility}
+              onChange={(e) =>
+                setCreateForm((prev) => ({
+                  ...prev,
+                  visibility: e.target.value as any,
+                }))
+              }
+              options={[
+                { value: "admin_only", label: "Sadece Yönetici Görebilir" },
+                { value: "all_residents", label: "Tüm Sakinler Görebilir" },
+              ]}
+            />
 
             <Textarea
               label="Açıklama"

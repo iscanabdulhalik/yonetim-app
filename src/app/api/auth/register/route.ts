@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists in this site
+    // Check if user already exists in this site with same email
     const existingUser = await User.findOne({
       email: email.toLowerCase(),
       siteId: site._id,
@@ -63,28 +63,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if unit is already taken
-    if (building && unitNumber) {
-      const existingUnit = await User.findOne({
-        siteId: site._id,
-        building,
-        unitNumber,
-        isActive: true,
-      });
-
-      if (existingUnit) {
-        return NextResponse.json(
-          { message: "Bu daire numarası zaten kayıtlı" },
-          { status: 400 }
-        );
-      }
-    }
+    // Aynı daire numarasına birden fazla sakin kaydolabilir - check kaldırıldı
+    // Unit uniqueness check REMOVED to allow multiple residents per unit
 
     // Hash password
     const hashedPassword = await hashPassword(password);
 
     // Create user
-    const user = new User({
+    const userData: any = {
       siteId: site._id,
       firstName,
       lastName,
@@ -92,10 +78,15 @@ export async function POST(request: NextRequest) {
       password: hashedPassword,
       phone,
       role: "resident",
-      building,
       unitNumber,
-    });
+    };
 
+    // Building bilgisini sadece site'nin buildingCount > 1 ise ekle
+    if (site.buildingCount > 1 && building) {
+      userData.building = building;
+    }
+
+    const user = new User(userData);
     await user.save();
 
     // Generate token
@@ -125,8 +116,15 @@ export async function POST(request: NextRequest) {
     console.error("Register error:", error);
 
     if (error.code === 11000) {
+      // Duplicate key error
+      if (error.keyPattern?.email) {
+        return NextResponse.json(
+          { message: "Bu email adresi zaten kullanımda" },
+          { status: 400 }
+        );
+      }
       return NextResponse.json(
-        { message: "Bu email adresi zaten kullanımda" },
+        { message: "Kayıt bilgileri zaten kullanımda" },
         { status: 400 }
       );
     }

@@ -15,9 +15,17 @@ async function getComplaints(
     const { siteId } = params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const limit = parseInt(searchParams.get("limit") || "50");
     const status = searchParams.get("status");
     const category = searchParams.get("category");
+
+    // Get user from token
+    const authHeader = request.headers.get("authorization");
+    const token = authHeader?.replace("Bearer ", "");
+    const decoded = jwt.verify(
+      token!,
+      process.env.JWT_SECRET || "your-secret-key"
+    ) as any;
 
     const query: any = { siteId };
 
@@ -27,6 +35,11 @@ async function getComplaints(
 
     if (category && category !== "all") {
       query.category = category;
+    }
+
+    // Eğer kullanıcı sakin ise, sadece kendi şikayetlerini ve herkese açık olanları getir
+    if (decoded.role === "resident") {
+      query.$or = [{ userId: decoded.userId }, { visibility: "all_residents" }];
     }
 
     const complaints = await Complaint.find(query)
@@ -77,7 +90,8 @@ async function createComplaint(
     await connectDB();
 
     const { siteId } = params;
-    const { title, description, category, priority } = await request.json();
+    const { title, description, category, priority, visibility } =
+      await request.json();
 
     // Get user from auth middleware
     const authHeader = request.headers.get("authorization");
@@ -94,6 +108,7 @@ async function createComplaint(
       description,
       category: category || "other",
       priority: priority || "normal",
+      visibility: visibility || "admin_only",
     });
 
     await complaint.save();

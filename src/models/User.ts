@@ -68,18 +68,8 @@ UserSchema.index(
   }
 );
 
-// Unit uniqueness within site
-UserSchema.index(
-  { siteId: 1, building: 1, unitNumber: 1 },
-  {
-    unique: true,
-    partialFilterExpression: {
-      building: { $exists: true, $ne: null },
-      unitNumber: { $exists: true, $ne: null },
-      isActive: true,
-    },
-  }
-);
+// Aynı daire numarasına birden fazla sakin kaydolabilsin - unique constraint kaldırıldı
+// Unit uniqueness within site - REMOVED to allow multiple residents per unit
 
 // Performance indexes
 UserSchema.index({ siteId: 1, role: 1, isActive: 1 });

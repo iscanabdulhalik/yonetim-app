@@ -32,7 +32,7 @@ interface User {
   isActive: boolean;
   lastLogin?: string;
   createdAt: string;
-  siteId: {
+  siteId?: {
     _id: string;
     name: string;
     siteCode: string;
@@ -58,9 +58,14 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (user?.role === "super_admin") {
       fetchSites();
-      fetchUsers();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (sites.length > 0 && user?.role === "super_admin") {
+      fetchUsers();
+    }
+  }, [sites, selectedSite, selectedRole]);
 
   const fetchSites = async () => {
     try {
@@ -83,20 +88,47 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
+      let allUsers: User[] = [];
 
-      // Get users from all sites
-      const allUsers: User[] = [];
+      if (selectedSite === "all") {
+        // Tüm sitelerden kullanıcıları getir
+        for (const site of sites) {
+          const response = await fetch(
+            `/api/admin/sites/${site._id}/users?role=${selectedRole}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
-      for (const site of sites) {
-        const response = await fetch(`/api/admin/sites/${site._id}/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          if (response.ok) {
+            const data = await response.json();
+            const usersWithSite = data.users.map((u: any) => ({
+              ...u,
+              siteId: site,
+            }));
+            allUsers.push(...usersWithSite);
+          }
+        }
+      } else {
+        // Sadece seçili siteden kullanıcıları getir
+        const response = await fetch(
+          `/api/admin/sites/${selectedSite}/users?role=${selectedRole}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
-          allUsers.push(...data.users);
+          const selectedSiteData = sites.find((s) => s._id === selectedSite);
+          allUsers = data.users.map((u: any) => ({
+            ...u,
+            siteId: selectedSiteData,
+          }));
         }
       }
 
@@ -167,11 +199,7 @@ export default function AdminUsersPage() {
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesSite =
-      selectedSite === "all" || user.siteId._id === selectedSite;
-    const matchesRole = selectedRole === "all" || user.role === selectedRole;
-
-    return matchesSearch && matchesSite && matchesRole;
+    return matchesSearch;
   });
 
   const roleOptions = [
@@ -215,6 +243,59 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">
+                  Toplam Kullanıcı
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Sakinler</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.filter((u) => u.role === "resident").length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-success-50 rounded-lg flex items-center justify-center">
+                <Users className="h-6 w-6 text-success-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Yöneticiler</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {users.filter((u) => u.role === "site_admin").length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-warning-50 rounded-lg flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-warning-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
@@ -253,7 +334,11 @@ export default function AdminUsersPage() {
             <div className="text-center py-12 text-gray-500">
               <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
               <h4 className="text-lg font-medium mb-2">Kullanıcı bulunamadı</h4>
-              <p>Arama kriterlerinizi değiştirin</p>
+              <p>
+                {sites.length === 0
+                  ? "Henüz site bulunmuyor"
+                  : "Arama kriterlerinizi değiştirin"}
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -298,10 +383,10 @@ export default function AdminUsersPage() {
                           <Building2 className="h-4 w-4 text-gray-400 mr-2" />
                           <div>
                             <div className="text-sm text-gray-900">
-                              {user.siteId.name}
+                              {user.siteId?.name || "-"}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {user.siteId.siteCode}
+                              {user.siteId?.siteCode || "-"}
                             </div>
                           </div>
                         </div>

@@ -9,6 +9,7 @@ export interface IComplaint extends Document {
   category: "maintenance" | "noise" | "security" | "cleaning" | "other";
   status: "open" | "in_progress" | "resolved" | "closed";
   priority: "low" | "normal" | "high";
+  visibility: "admin_only" | "all_residents"; // Yeni alan
   adminResponse?: string;
   respondedBy?: mongoose.Types.ObjectId;
   respondedAt?: Date;
@@ -36,6 +37,11 @@ const ComplaintSchema = new Schema<IComplaint>(
       type: String,
       enum: ["low", "normal", "high"],
       default: "normal",
+    },
+    visibility: {
+      type: String,
+      enum: ["admin_only", "all_residents"],
+      default: "admin_only",
     },
     adminResponse: { type: String },
     respondedBy: { type: Schema.Types.ObjectId, ref: "User" },
