@@ -10,6 +10,7 @@ import {
 import { useAuth } from "./AuthContext";
 
 interface Site {
+  createdAt: string | number | Date;
   _id: string;
   siteCode: string;
   name: string;

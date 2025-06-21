@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Calendar,
 } from "lucide-react";
+import router from "next/router";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -126,7 +127,10 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 transition-colors text-left">
+              <button
+                onClick={() => router.push(`/tr/site/${siteCode}/payments`)}
+                className="p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 transition-colors text-left"
+              >
                 <Calendar className="h-6 w-6 text-primary-600 mb-2" />
                 <h3 className="font-medium text-secondary-900">
                   Aidat Oluştur
@@ -136,7 +140,10 @@ export default function DashboardPage() {
                 </p>
               </button>
 
-              <button className="p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 transition-colors text-left">
+              <button
+                onClick={() => router.push(`/tr/site/${siteCode}/expenses`)}
+                className="p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 transition-colors text-left"
+              >
                 <Receipt className="h-6 w-6 text-success-600 mb-2" />
                 <h3 className="font-medium text-secondary-900">Gider Ekle</h3>
                 <p className="text-sm text-secondary-600">
@@ -144,7 +151,12 @@ export default function DashboardPage() {
                 </p>
               </button>
 
-              <button className="p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 transition-colors text-left">
+              <button
+                onClick={() =>
+                  router.push(`/tr/site/${siteCode}/announcements`)
+                }
+                className="p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 transition-colors text-left"
+              >
                 <Users className="h-6 w-6 text-warning-600 mb-2" />
                 <h3 className="font-medium text-secondary-900">Duyuru Yap</h3>
                 <p className="text-sm text-secondary-600">
