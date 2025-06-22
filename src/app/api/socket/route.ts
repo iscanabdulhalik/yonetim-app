@@ -11,7 +11,7 @@ export async function GET(req: NextRequest, res: NextApiResponseServerIO) {
       path: "/api/socket",
       addTrailingSlash: false,
       cors: {
-        origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000/tr",
+        origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000/",
         methods: ["GET", "POST"],
       },
     });
