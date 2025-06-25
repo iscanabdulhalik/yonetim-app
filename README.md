@@ -280,4 +280,4 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 📞 Destek
 
-Sorunlar için GitHub Issues kullanın veya [email] ile iletişime geçin.
+Sorunlar için GitHub Issues kullanın veya iscanabdulhalik@gmail.com ile iletişime geçin.
