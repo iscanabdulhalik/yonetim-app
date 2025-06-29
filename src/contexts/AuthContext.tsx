@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   ReactNode,
+  useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
 import { AuthUser, LoginRequest, RegisterRequest } from "@/types/auth";
@@ -17,6 +18,7 @@ interface AuthContextType {
   logout: () => void;
   register: (userData: RegisterRequest) => Promise<void>;
   updateUser: (userData: Partial<AuthUser>) => void;
+  refreshToken: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -28,6 +30,68 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Token yenileme fonksiyonu
+  const refreshToken = useCallback(async (): Promise<boolean> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return false;
+
+      const response = await fetch("/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData.user);
+        return true;
+      } else {
+        // Token geçersiz, temizle
+        localStorage.removeItem("token");
+        setUser(null);
+        return false;
+      }
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      localStorage.removeItem("token");
+      setUser(null);
+      return false;
+    }
+  }, []);
+
+  // Otomatik token kontrolü
+  useEffect(() => {
+    const checkAuthPeriodically = () => {
+      const token = localStorage.getItem("token");
+      if (token && user) {
+        // Token'ı decode et ve süresini kontrol et
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const currentTime = Date.now() / 1000;
+
+          // Token 5 dakika içinde sona erecekse yenile
+          if (payload.exp - currentTime < 300) {
+            refreshToken();
+          }
+        } catch (error) {
+          console.error("Token decode error:", error);
+        }
+      }
+    };
+
+    // İlk kontrol
+    if (user) {
+      checkAuthPeriodically();
+
+      // Her 5 dakikada bir kontrol et
+      const interval = setInterval(checkAuthPeriodically, 5 * 60 * 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [user, refreshToken]);
+
+  // Sayfa yüklendiğinde auth kontrolü
   useEffect(() => {
     checkAuth();
   }, []);
@@ -40,17 +104,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const response = await fetch("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData.user);
-      } else {
-        localStorage.removeItem("token");
+      const isValid = await refreshToken();
+      if (!isValid) {
+        console.log("Token geçersiz, giriş sayfasına yönlendiriliyor...");
       }
     } catch (error) {
       console.error("Auth check failed:", error);
@@ -76,12 +132,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "Login failed");
+      throw new Error(error.message || "Giriş yapılamadı");
     }
 
     const data = await response.json();
 
-    // TOKEN'I SAKLA - ÖNEMLİ!
+    // TOKEN'I SAKLA
     localStorage.setItem("token", data.token);
     setUser(data.user);
 
@@ -107,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+        throw new Error(data.message || "Kayıt yapılamadı");
       }
 
       // Token'ı localStorage'a kaydet
@@ -125,17 +181,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
+    localStorage.removeItem("rememberedEmail");
     setUser(null);
     router.push("/tr/auth/login");
-  };
+  }, [router]);
 
-  const updateUser = (userData: Partial<AuthUser>) => {
+  const updateUser = useCallback((userData: Partial<AuthUser>) => {
     setUser((prev: AuthUser | null) =>
       prev ? { ...prev, ...userData } : null
     );
-  };
+  }, []);
+
+  // Visibility change olayını dinle (sayfa gizlendiğinde/göründüğünde)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        // Sayfa tekrar göründüğünde token'ı kontrol et
+        refreshToken();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [user, refreshToken]);
 
   const value = {
     user,
@@ -144,6 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     register,
     updateUser,
+    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
